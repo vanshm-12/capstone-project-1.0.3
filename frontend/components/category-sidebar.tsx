@@ -3,9 +3,9 @@
 import React from "react";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { CATEGORIES, CategoryType } from "@/lib/categories";
+import { BookFilter } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BookFilter } from "./filter-bar";
 
 export interface CategorySidebarProps {
   methods?: UseFormReturn<BookFilter>;

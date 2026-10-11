@@ -4,6 +4,10 @@ import com.example.demo.product.model.PriceRange;
 import com.example.demo.product.model.Product;
 import com.example.demo.product.model.SortBy;
 import com.example.demo.product.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,15 +23,17 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<Product> getProducts(String sortBy, String category, String search, String language, String format, String priceRange) {
-        List<Product> all = productRepository.findAll();
+    public Page<Product> getProducts(String sortBy, String category, String search,
+                                     String language, String format, String priceRange,
+                                     Pageable pageable) {
         SortBy sortEnum = SortBy.fromString(sortBy);
         PriceRange priceEnum = PriceRange.fromString(priceRange);
 
-        return all.stream()
+        List<Product> filtered = productRepository.findAll().stream()
                 .filter(p -> {
                     if (category != null && !category.equalsIgnoreCase("all") && !category.isBlank()) {
-                        if (p.getCategories() == null || p.getCategories().stream().noneMatch(c -> c.equalsIgnoreCase(category))) {
+                        if (p.getCategories() == null
+                                || p.getCategories().stream().noneMatch(c -> c.equalsIgnoreCase(category))) {
                             return false;
                         }
                     }
@@ -58,17 +64,26 @@ public class ProductService {
                 })
                 .sorted((p1, p2) -> {
                     if (sortEnum == SortBy.PRICE_LOW_HIGH) {
-                        return Double.compare(p1.getPrice() != null ? p1.getPrice() : 0, p2.getPrice() != null ? p2.getPrice() : 0);
+                        return Double.compare(p1.getPrice() != null ? p1.getPrice() : 0,
+                                p2.getPrice() != null ? p2.getPrice() : 0);
                     }
                     if (sortEnum == SortBy.PRICE_HIGH_LOW) {
-                        return Double.compare(p2.getPrice() != null ? p2.getPrice() : 0, p1.getPrice() != null ? p1.getPrice() : 0);
+                        return Double.compare(p2.getPrice() != null ? p2.getPrice() : 0,
+                                p1.getPrice() != null ? p1.getPrice() : 0);
                     }
                     if (sortEnum == SortBy.RATING) {
-                        return Double.compare(p2.getRating() != null ? p2.getRating() : 0, p1.getRating() != null ? p1.getRating() : 0);
+                        return Double.compare(p2.getRating() != null ? p2.getRating() : 0,
+                                p1.getRating() != null ? p1.getRating() : 0);
                     }
                     return 0;
                 })
                 .collect(Collectors.toList());
+
+        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + pageRequest.getPageSize(), filtered.size());
+        List<Product> pageContent = filtered.subList(start, end);
+        return new PageImpl<>(pageContent, pageRequest, filtered.size());
     }
 
     public List<String> getCategories() {

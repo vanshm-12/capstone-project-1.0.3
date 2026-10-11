@@ -9,7 +9,7 @@ import { OrderItem } from "@/lib/types";
 
 export function OrderItemRow({ item }: { item: OrderItem }) {
   const { addToCart } = useCart();
-  const cover = item.cover_image || "/placeholder-book.png";
+  const cover = item.cover_image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f";
 
   const handleBuyAgain = () => {
     addToCart({
@@ -42,7 +42,7 @@ export function OrderItemRow({ item }: { item: OrderItem }) {
         </div>
         <div>
           <Link
-            href={`/book/${item.book_id}`}
+            href={`/book/by-id/${item.book_id}`}
             className="text-sm font-semibold text-foreground hover:text-primary transition-colors line-clamp-1"
           >
             {item.title}

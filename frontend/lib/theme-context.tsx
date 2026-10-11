@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 const STORAGE_KEY = "bookworm-theme";
 
@@ -26,39 +33,49 @@ function applyTheme(theme: Theme) {
   }
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
-  const [mounted, setMounted] = useState(false);
-
-  // Read persisted preference once, on the client only.
-  useEffect(() => {
-    let initial: Theme = "dark";
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-      if (stored === "dark" || stored === "light") {
-        initial = stored;
-      }
-    } catch {
-      // Ignore storage access errors (e.g. private mode).
+function readStoredTheme(): Theme {
+  if (typeof window === "undefined") {
+    return "dark";
+  }
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === "dark" || stored === "light") {
+      return stored;
     }
-    setThemeState(initial);
-    applyTheme(initial);
-    setMounted(true);
-  }, []);
+  } catch {
+    // Ignore storage access errors (e.g. private mode).
+  }
+  return "dark";
+}
 
-  const setTheme = (next: Theme) => {
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setThemeState] = useState<Theme>(readStoredTheme);
+
+  // Keep the DOM class in sync with the current theme.
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  const setTheme = useCallback((next: Theme) => {
     setThemeState(next);
-    applyTheme(next);
     try {
       localStorage.setItem(STORAGE_KEY, next);
     } catch {
       // Ignore storage write errors.
     }
-  };
+  }, []);
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const next: Theme = prev === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // Ignore storage write errors.
+      }
+      return next;
+    });
+  }, []);
 
   const value = useMemo<ThemeContextValue>(
     () => ({
@@ -67,11 +84,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       toggleTheme,
       setTheme,
     }),
-    [theme]
+    [theme, toggleTheme, setTheme]
   );
 
-  // Render children immediately with the default (dark) theme so the UI is
-  // never blank; the effect above corrects any persisted preference.
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 

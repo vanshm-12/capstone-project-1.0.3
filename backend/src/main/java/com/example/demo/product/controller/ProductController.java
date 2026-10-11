@@ -2,6 +2,8 @@ package com.example.demo.product.controller;
 
 import com.example.demo.product.model.Product;
 import com.example.demo.product.service.ProductService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,14 +21,16 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getProducts(
+    public ResponseEntity<Page<Product>> getProducts(
             @RequestParam(name = "sort_by", required = false) String sortBy,
             @RequestParam(name = "category", required = false) String category,
             @RequestParam(name = "search", required = false) String search,
             @RequestParam(name = "language", required = false) String language,
             @RequestParam(name = "format", required = false) String format,
-            @RequestParam(name = "price_range", required = false) String priceRange) {
-        return ResponseEntity.ok(productService.getProducts(sortBy, category, search, language, format, priceRange));
+            @RequestParam(name = "price_range", required = false) String priceRange,
+            Pageable pageable) {
+        return ResponseEntity.ok(productService.getProducts(sortBy, category, search,
+                language, format, priceRange, pageable));
     }
 
     @GetMapping("/categories")

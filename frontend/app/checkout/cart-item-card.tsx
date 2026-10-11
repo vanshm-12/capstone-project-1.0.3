@@ -16,7 +16,7 @@ export function CartItemCard({ item }: { item: CartItem }) {
     <Card className="flex gap-4 p-4">
       <div className="relative w-28 h-40 shrink-0 overflow-hidden rounded-xl bg-muted shadow-sm border">
         <Image
-          src={book.cover_image || "/placeholder-book.png"}
+          src={book.cover_image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f"}
           alt={book.title}
           fill
           sizes="120px"

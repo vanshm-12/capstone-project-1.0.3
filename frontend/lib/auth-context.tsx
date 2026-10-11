@@ -14,24 +14,28 @@ interface AuthContextType {
   loginUser: (userData: AuthUser) => void;
   logoutUser: () => void;
   isAuthenticated: boolean;
+  isReady: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    let stored;
+    let stored: string | null = null;
     try {
       stored = localStorage.getItem("auth_user");
     } catch {}
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      queueMicrotask(() => {
-        setUser(parsed);
-      });
-    }
+    queueMicrotask(() => {
+      if (stored) {
+        try {
+          setUser(JSON.parse(stored));
+        } catch {}
+      }
+      setIsReady(true);
+    });
   }, []);
 
   const loginUser = (userData: AuthUser) => {
@@ -55,6 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         loginUser,
         logoutUser,
         isAuthenticated: Boolean(user),
+        isReady,
       }}
     >
       {children}

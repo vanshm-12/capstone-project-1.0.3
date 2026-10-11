@@ -32,12 +32,6 @@ public class OrderService {
     }
 
     public Order createOrder(Order order) {
-        if (order.getOrderNumber() == null || order.getOrderNumber().isBlank()) {
-            order.setOrderNumber("ORD-" + System.currentTimeMillis());
-        }
-        if (order.getStatus() == null || order.getStatus().isBlank()) {
-            order.setStatus("confirmed");
-        }
         return orderRepository.save(order);
     }
 

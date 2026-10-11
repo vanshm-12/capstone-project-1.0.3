@@ -12,7 +12,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "covers.openlibrary.org",
       },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
     ],
+    dangerouslyAllowSVG: true,
   },
   async rewrites() {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8080";

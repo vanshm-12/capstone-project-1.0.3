@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { RHFFormProvider, RHFTextField } from "@/components/hook-form";
@@ -21,7 +21,10 @@ import { useAuth } from "@/lib/auth-context";
 
 export const SignUpForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { loginUser } = useAuth();
+
+  const redirectTo = searchParams.get("redirect") || "/";
 
   const methods = useForm<SignUpPayload>({
     defaultValues: {
@@ -41,7 +44,8 @@ export const SignUpForm = () => {
         email: data.email,
         token: data.token,
       });
-      router.push("/");
+      router.push(redirectTo);
+      router.refresh();
     },
   });
 

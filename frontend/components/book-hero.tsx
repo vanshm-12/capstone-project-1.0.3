@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { Star, ShoppingCart } from "lucide-react";
+import { Star, ShoppingCart, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -15,6 +16,7 @@ interface BookHeroProps {
 
 export function BookHero({ book }: BookHeroProps) {
   const { cart, addToCart } = useCart();
+  const [quantity, setQuantity] = useState(1);
   const inCart = cart.some((item) => item.book.id === book.id);
   const cover =
     book.cover_image ||
@@ -91,8 +93,29 @@ export function BookHero({ book }: BookHeroProps) {
         </div>
 
         <div className="flex items-center gap-3 pt-1">
+          <div className="flex items-center border rounded-full px-2 py-1 gap-2 bg-muted/40">
+            <button
+              type="button"
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              className="text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
+              aria-label="Decrease quantity"
+            >
+              <Minus className="size-3.5" />
+            </button>
+            <span className="text-foreground text-sm font-semibold w-6 text-center">
+              {quantity}
+            </span>
+            <button
+              type="button"
+              onClick={() => setQuantity(quantity + 1)}
+              className="text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
+              aria-label="Increase quantity"
+            >
+              <Plus className="size-3.5" />
+            </button>
+          </div>
           <Button
-            onClick={() => addToCart({ book, quantity: 1 })}
+            onClick={() => addToCart({ book, quantity })}
             className="flex items-center gap-2"
           >
             <ShoppingCart className="size-4" />

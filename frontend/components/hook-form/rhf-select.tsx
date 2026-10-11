@@ -36,7 +36,7 @@ export const RHFSelect = ({
       control={control}
       render={({ field, fieldState: { error } }) => (
         <div className="w-full space-y-1.5">
-          {label && <Label htmlFor={name}>{label}</Label>}
+          {label && <Label>{label}</Label>}
 
           <Select
             value={field.value}

@@ -19,14 +19,6 @@ export const API_ENDPOINTS = {
   },
 } as const;
 
-export const HTTP_METHODS = {
-  GET: "GET",
-  POST: "POST",
-  PUT: "PUT",
-  DELETE: "DELETE",
-  PATCH: "PATCH",
-} as const;
-
 export const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
 } as const;

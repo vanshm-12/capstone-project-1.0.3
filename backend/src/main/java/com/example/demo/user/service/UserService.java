@@ -52,10 +52,6 @@ public class UserService {
         return new AuthResponse(user.getId(), user.getName(), user.getEmail(), "Login successful", token);
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
-    }
-
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email.toLowerCase().trim());
     }

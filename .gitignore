@@ -20,6 +20,7 @@ target/
 .next/
 next-env.d.ts
 out/
+*.tsbuildinfo
 
 # Node
 node_modules/

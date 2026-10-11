@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { RHFFormProvider, RHFTextField } from "@/components/hook-form";
@@ -20,7 +20,10 @@ import { useAuth } from "@/lib/auth-context";
 
 export const SignInForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { loginUser } = useAuth();
+
+  const redirectTo = searchParams.get("redirect") || "/";
 
   const methods = useForm<SignInPayload>({
     defaultValues: {
@@ -39,7 +42,8 @@ export const SignInForm = () => {
         email: data.email,
         token: data.token,
       });
-      router.push("/");
+      router.push(redirectTo);
+      router.refresh();
     },
   });
 

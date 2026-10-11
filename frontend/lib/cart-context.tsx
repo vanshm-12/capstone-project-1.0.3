@@ -28,11 +28,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }) => {
     const existing = cart.find((item) => item.book.id === book.id);
     if (existing) {
-      return cart.map((item) =>
-        item.book.id === book.id
-          ? { ...item, quantity: item.quantity + quantity }
-          : item,
+      setCart(
+        cart.map((item) =>
+          item.book.id === book.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item,
+        ),
       );
+      return;
     }
 
     setCart([...cart, { book, quantity }]);

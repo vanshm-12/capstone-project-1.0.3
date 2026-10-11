@@ -94,5 +94,6 @@ export interface Order {
   pin: string;
   phone: string;
   estimated_delivery?: string;
+  payment_method?: string;
   items: OrderItem[];
 }

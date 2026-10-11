@@ -4,8 +4,25 @@ import { API_ENDPOINTS } from "./endpoints";
 import { BookFilterApiParams } from "./types";
 import { Book, BookFilter } from "../types";
 
-export const getBooks = async (params?: BookFilter): Promise<Book[]> => {
-  const queryParams: BookFilterApiParams = {};
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+const DEFAULT_PAGE_SIZE = 12;
+
+export const getBooks = async (
+  params?: BookFilter,
+  page = 0,
+  size = DEFAULT_PAGE_SIZE
+): Promise<PageResponse<Book>> => {
+  const queryParams: BookFilterApiParams & {
+    page?: number;
+    size?: number;
+  } = { page, size };
 
   if (params?.sort_by) queryParams.sort_by = params.sort_by;
   if (params?.category && params.category !== "All")
@@ -19,10 +36,11 @@ export const getBooks = async (params?: BookFilter): Promise<Book[]> => {
   if (params?.price_range && params.price_range !== "all")
     queryParams.price_range = params.price_range;
 
-  const data = await apiClient.get<Book[]>(API_ENDPOINTS.PRODUCTS.BASE, {
-    params: queryParams,
-  });
-  return Array.isArray(data) ? data : [];
+  const data = await apiClient.get<PageResponse<Book>>(
+    API_ENDPOINTS.PRODUCTS.BASE,
+    { params: queryParams }
+  );
+  return data;
 };
 
 export const getBookBySlug = async (slug: string): Promise<Book | null> => {
@@ -37,18 +55,10 @@ export const getCategories = async (): Promise<string[]> => {
   return apiClient.get<string[]>(API_ENDPOINTS.PRODUCTS.CATEGORIES);
 };
 
-export const useBooksQuery = (params: BookFilter) => {
+export const useBooksQuery = (params: BookFilter, page: number) => {
   return useQuery({
-    queryKey: ["books", params],
-    queryFn: () => getBooks(params),
-  });
-};
-
-export const useBookQuery = (slug: string) => {
-  return useQuery({
-    queryKey: ["book", slug],
-    queryFn: () => getBookBySlug(slug),
-    enabled: Boolean(slug),
+    queryKey: ["books", params, page],
+    queryFn: () => getBooks(params, page),
   });
 };
 

@@ -11,9 +11,7 @@ const Navbar = () => {
   const { user, logoutUser, isAuthenticated } = useAuth();
 
   const navLinks = [
-    { label: "Books", href: "/" },
-    { label: "Orders", href: "/orders" },
-    { label: "Cart / Checkout", href: "/checkout" },
+    { label: "Books", href: "/books" },
   ];
 
   return (
@@ -26,6 +24,16 @@ const Navbar = () => {
                 {item.label}
               </Link>
             ))}
+            {isAuthenticated && (
+              <>
+                <Link href="/orders" className="text-sm">
+                  My Orders
+                </Link>
+                <Link href="/checkout" className="text-sm">
+                  Checkout
+                </Link>
+              </>
+            )}
           </nav>
         </div>
 

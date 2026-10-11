@@ -14,9 +14,6 @@ import {
   BookFilter,
 } from "@/lib/types";
 
-export { LANGUAGE_TYPE, FORMAT_TYPE, PRICE_TYPE, SORT_TYPE };
-export type { BookFilter };
-
 const LANGUAGE_OPTIONS = [
   { label: "All Languages", value: LANGUAGE_TYPE.ALL },
   { label: "English", value: LANGUAGE_TYPE.ENGLISH },

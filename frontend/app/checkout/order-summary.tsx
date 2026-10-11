@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CreditCard, Tag } from "lucide-react";
+import { useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,6 +14,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { RHFTextField } from "@/components/hook-form";
 import { useCart } from "@/lib/cart-context";
+import { CheckoutFormValues } from "./types";
+
+export const VALID_COUPONS: Record<string, number> = {
+  BOOK100: 100,
+};
 
 interface OrderSummaryProps {
   isSubmitting?: boolean;
@@ -20,12 +26,38 @@ interface OrderSummaryProps {
 
 export function OrderSummary({ isSubmitting = false }: OrderSummaryProps) {
   const { cart, subtotal } = useCart();
-  const [isApplied, setIsApplied] = useState(false);
+  const { watch, setValue } = useFormContext<CheckoutFormValues>();
+  const coupon = watch("coupon") ?? "";
+  const [appliedCoupon, setAppliedCoupon] = useState<string>("");
+  const [couponError, setCouponError] = useState<string>("");
 
-  const discount = isApplied ? 100 : 0;
+  const discount = appliedCoupon ? VALID_COUPONS[appliedCoupon] ?? 0 : 0;
   const tax = Math.round(subtotal * 0.12);
   const deliveryCharge = 0;
   const grandTotal = Math.max(0, subtotal + tax + deliveryCharge - discount);
+
+  const applyCoupon = () => {
+    const code = coupon.trim().toUpperCase();
+    if (!code) {
+      setCouponError("Enter a coupon code");
+      setAppliedCoupon("");
+      return;
+    }
+    if (!(code in VALID_COUPONS)) {
+      setCouponError("Invalid coupon code");
+      setAppliedCoupon("");
+      return;
+    }
+    setCouponError("");
+    setAppliedCoupon(code);
+    setValue("coupon", code);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon("");
+    setValue("coupon", "");
+    setCouponError("");
+  };
 
   return (
     <Card className="flex flex-col h-full overflow-hidden">
@@ -61,15 +93,15 @@ export function OrderSummary({ isSubmitting = false }: OrderSummaryProps) {
             </span>
           </div>
 
-          {isApplied ? (
+          {appliedCoupon ? (
             <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400">
               <span className="flex items-center gap-1.5 font-medium">
                 <Tag className="size-3.5" />
-                {isApplied} (-₹{discount})
+                {appliedCoupon} (-₹{discount})
               </span>
               <Button
                 type="button"
-                onClick={() => setIsApplied(false)}
+                onClick={removeCoupon}
                 size="sm"
                 className="h-8 text-xs px-3 mt-0.5"
               >
@@ -87,13 +119,16 @@ export function OrderSummary({ isSubmitting = false }: OrderSummaryProps) {
               </div>
               <Button
                 type="button"
-                onClick={() => setIsApplied(true)}
+                onClick={applyCoupon}
                 size="sm"
                 className="h-8 text-xs px-3 mt-0.5"
               >
                 Apply
               </Button>
             </div>
+          )}
+          {couponError && (
+            <p className="text-xs text-destructive">{couponError}</p>
           )}
         </div>
 

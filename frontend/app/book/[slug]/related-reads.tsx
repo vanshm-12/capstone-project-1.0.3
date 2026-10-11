@@ -3,7 +3,8 @@ import { BookCard } from "../../../components/book-card";
 import { Book } from "@/lib/types";
 
 const RelatedReads = async () => {
-  const books: Book[] = await getBooks().catch(() => []);
+  const response = await getBooks(undefined, 0, 4).catch(() => null);
+  const books: Book[] = response?.content ?? [];
 
   return (
     <aside className="w-100 shrink-0 border-l px-6 py-2">
